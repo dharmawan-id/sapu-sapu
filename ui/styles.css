@@ -115,7 +115,8 @@ button { font-family: inherit; cursor: pointer; }
   border: var(--bd-2); position: relative; overflow: hidden;
 }
 .gauge__fill { height: 100%; background: var(--accent); }
-.gauge__fill.is-tight { background: var(--red); }
+.gauge__fill.is-tight { background: var(--gold); }
+.gauge__fill.is-critical { background: var(--red); }
 .gauge__meta {
   display: flex; justify-content: space-between;
   font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.03em;
@@ -172,7 +173,7 @@ main { position: relative; z-index: 1; padding: 0 22px 60px; }
 }
 .listrow:last-child { border-bottom: 0; }
 .listrow__path {
-  font-family: var(--font-mono); font-size: 0.74rem; color: var(--ink-soft);
+  font-family: var(--font-mono); font-size: 0.74rem; color: var(--ink-soft); min-width: 0;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: rtl; text-align: left;
 }
 .listrow__size { font-family: var(--font-mono); font-weight: 700; font-size: 0.78rem; white-space: nowrap; }
@@ -180,7 +181,7 @@ main { position: relative; z-index: 1; padding: 0 22px 60px; }
 .typebar { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
 .typebar__label { font-family: var(--font-mono); font-size: 0.72rem; width: 96px; flex: none; text-transform: uppercase; letter-spacing: 0.03em; }
 .typebar__track { flex: 1; height: 14px; background: var(--paper-2); border: var(--bd-2); }
-.typebar__fill { height: 100%; background: var(--accent); }
+.typebar__fill { display: block; height: 100%; background: var(--accent); }
 .typebar__val { font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; width: 72px; text-align: right; flex: none; }
 
 /* ---------- Clean tiers ---------- */

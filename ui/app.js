@@ -46,14 +46,14 @@ async function renderGauge(drive) {
     }
     const usedPct = d.total ? (d.used / d.total) * 100 : 0;
     const freePct = 100 - usedPct;
-    const tight = freePct < 15;
+    const level = freePct < 10 ? "is-critical" : freePct < 20 ? "is-tight" : "";
     el.innerHTML = `
       <div class="gauge__top">
         <span class="gauge__drive">${drive}:</span>
         <span class="gauge__free">free<b>${fmtBytes(d.free)}</b></span>
       </div>
       <div class="gauge__bar">
-        <div class="gauge__fill ${tight ? "is-tight" : ""}" style="width:${usedPct.toFixed(1)}%"></div>
+        <div class="gauge__fill ${level}" style="width:${usedPct.toFixed(1)}%"></div>
       </div>
       <div class="gauge__meta">
         <span>${fmtBytes(d.used)} used</span>
@@ -218,7 +218,7 @@ function rowHtml(a, i) {
     ? `<span class="flag flag--dirty">uncommitted</span>`
     : a.modified_days >= 0 && a.modified_days < 30
     ? `<span class="flag flag--fresh">${a.modified_days}d old</span>`
-    : `<span class="row__age">${a.modified_days}d old</span>`;
+    : `<span class="row__age">${a.modified_days >= 0 ? a.modified_days + "d old" : "age unknown"}</span>`;
   return `
     <div class="row" data-i="${i}">
       <input type="checkbox" class="row__check" ${a.safe ? "checked" : ""} />
@@ -278,6 +278,21 @@ async function deleteProjects() {
   }
 }
 
+// ---------- recycle bin ----------
+async function emptyRecycle() {
+  $("#recycle-empty").disabled = true;
+  toast("Emptying Recycle Bin ...");
+  try {
+    const r = await invoke("empty_recycle_bin");
+    toast(`Recycle Bin emptied. Freed ${fmtBytes(r.freed)}.`, "ok");
+    await refreshGauges();
+  } catch (e) {
+    toast("Failed: " + e, "warn");
+  } finally {
+    $("#recycle-empty").disabled = false;
+  }
+}
+
 // ---------- boot ----------
 function wire() {
   wireTabs();
@@ -286,6 +301,7 @@ function wire() {
   $("#green-clean").addEventListener("click", cleanGreen);
   $("#proj-scan").addEventListener("click", scanProjects);
   $("#proj-delete").addEventListener("click", deleteProjects);
+  $("#recycle-empty").addEventListener("click", emptyRecycle);
 }
 
 window.addEventListener("DOMContentLoaded", () => {

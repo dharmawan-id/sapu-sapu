@@ -96,7 +96,7 @@ pub struct ProjectArtifact {
     safe: bool,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Default)]
 pub struct CleanResult {
     freed: u64,
     deleted: u64,
@@ -224,7 +224,6 @@ fn is_protected(path: &Path) -> bool {
         "\\.aws",
         "\\.kube",
         "\\.gnupg",
-        "\\devtools\\rust", // our own toolchain, do not nuke
     ];
     if needles.iter().any(|n| s.contains(n)) {
         return true;
@@ -253,6 +252,13 @@ fn is_protected(path: &Path) -> bool {
         }
     }
     false
+}
+
+fn is_ancestor(a: &str, b: &str) -> bool {
+    // true when path `a` is an ancestor of path `b` (b sits under a)
+    let a2 = a.trim_end_matches('\\').to_lowercase();
+    let b2 = b.to_lowercase();
+    b2.len() > a2.len() && b2.starts_with(&a2) && b2.as_bytes()[a2.len()] == b'\\'
 }
 
 // ---- overview scan (disk analyzer) ----
@@ -285,7 +291,19 @@ fn accumulate_folders(root: &Path, file: &Path, sz: u64, cap: usize, map: &mut H
 }
 
 #[tauri::command]
-pub fn scan_overview(drive: String, topn: usize) -> Overview {
+pub async fn scan_overview(drive: String, topn: usize) -> Overview {
+    tauri::async_runtime::spawn_blocking(move || scan_overview_impl(drive, topn))
+        .await
+        .unwrap_or_else(|_| Overview {
+            drive: String::new(),
+            scanned_files: 0,
+            top_folders: Vec::new(),
+            top_files: Vec::new(),
+            by_type: Vec::new(),
+        })
+}
+
+fn scan_overview_impl(drive: String, topn: usize) -> Overview {
     let letter = drive.trim().trim_end_matches('\\').trim_end_matches(':');
     let root_str = format!("{}:\\", letter);
     let root = PathBuf::from(&root_str);
@@ -331,12 +349,26 @@ pub fn scan_overview(drive: String, topn: usize) -> Overview {
         }
     }
 
-    let mut top_folders: Vec<Entry> = folder
+    let mut all_folders: Vec<Entry> = folder
         .into_iter()
         .map(|(path, size)| Entry { path, size })
         .collect();
-    top_folders.sort_by(|a, b| b.size.cmp(&a.size));
-    top_folders.truncate(n);
+    all_folders.sort_by(|a, b| b.size.cmp(&a.size));
+    // Keep the biggest non-overlapping folders: drop a folder that is an ancestor
+    // or descendant of one already kept, so a parent and its dominant child are
+    // not both listed (that was the redundant-nesting look).
+    let mut top_folders: Vec<Entry> = Vec::new();
+    for f in all_folders {
+        let overlaps = top_folders
+            .iter()
+            .any(|g| is_ancestor(&g.path, &f.path) || is_ancestor(&f.path, &g.path));
+        if !overlaps {
+            top_folders.push(f);
+        }
+        if top_folders.len() >= n {
+            break;
+        }
+    }
 
     let mut top_files: Vec<Entry> = heap
         .into_sorted_vec()
@@ -427,7 +459,13 @@ fn cargo_cache_paths() -> Vec<String> {
 }
 
 #[tauri::command]
-pub fn list_clean_targets() -> Vec<CleanTarget> {
+pub async fn list_clean_targets() -> Vec<CleanTarget> {
+    tauri::async_runtime::spawn_blocking(list_clean_targets_impl)
+        .await
+        .unwrap_or_default()
+}
+
+fn list_clean_targets_impl() -> Vec<CleanTarget> {
     let up = up();
     let local = local();
     let roaming = roaming();
@@ -580,7 +618,13 @@ fn modified_days(md: &std::fs::Metadata) -> i64 {
 }
 
 #[tauri::command]
-pub fn scan_projects(root: String, depth: usize) -> Vec<ProjectArtifact> {
+pub async fn scan_projects(root: String, depth: usize) -> Vec<ProjectArtifact> {
+    tauri::async_runtime::spawn_blocking(move || scan_projects_impl(root, depth))
+        .await
+        .unwrap_or_default()
+}
+
+fn scan_projects_impl(root: String, depth: usize) -> Vec<ProjectArtifact> {
     let names = [
         "node_modules",
         "target",
@@ -632,13 +676,17 @@ pub fn scan_projects(root: String, depth: usize) -> Vec<ProjectArtifact> {
 
 // ---- delete commands (free-space delta = real reclaim) ----
 #[tauri::command]
-pub fn clean_paths(paths: Vec<String>) -> CleanResult {
-    run_delete(paths, false)
+pub async fn clean_paths(paths: Vec<String>) -> CleanResult {
+    tauri::async_runtime::spawn_blocking(move || run_delete(paths, false))
+        .await
+        .unwrap_or_default()
 }
 
 #[tauri::command]
-pub fn delete_projects(paths: Vec<String>) -> CleanResult {
-    run_delete(paths, true)
+pub async fn delete_projects(paths: Vec<String>) -> CleanResult {
+    tauri::async_runtime::spawn_blocking(move || run_delete(paths, true))
+        .await
+        .unwrap_or_default()
 }
 
 fn run_delete(paths: Vec<String>, remove_root: bool) -> CleanResult {
@@ -671,7 +719,13 @@ fn run_delete(paths: Vec<String>, remove_root: bool) -> CleanResult {
 }
 
 #[tauri::command]
-pub fn empty_recycle_bin() -> CleanResult {
+pub async fn empty_recycle_bin() -> CleanResult {
+    tauri::async_runtime::spawn_blocking(empty_recycle_bin_impl)
+        .await
+        .unwrap_or_default()
+}
+
+fn empty_recycle_bin_impl() -> CleanResult {
     use std::os::windows::process::CommandExt;
     let cb = free_drive("C");
     let db = free_drive("D");

@@ -42,6 +42,8 @@ Download `Sapu-Sapu.exe` from the [latest release](https://github.com/dharmawan-
 
 Beyond the tiers: preview before every delete, locked files skipped instead of forced, git-aware and recency-aware flags on project folders, and a real free-space delta as the freed number so a 70 GB hardlinked cache reports the few gigabytes it really frees.
 
+![The Sapu Sapu clean view: regenerating caches with sizes, project artifacts with age and git status, and the protected list](docs/screenshot-clean.png)
+
 ## Build from source
 
 Needs the Rust toolchain. Sapu Sapu targets the GNU toolchain so it builds without Visual Studio.
@@ -62,10 +64,16 @@ The executable lands in `src-tauri/target/release/sapu.exe`. Regenerate the icon
 
 ## Roadmap
 
-- MFT-direct NTFS scanning for WizTree-class speed (reads `$MFT`, needs admin)
-- Duplicate file finder
-- Docker and WSL cache reclaim
-- Bundled fonts for fully offline rendering
+Shaped by studying the strongest tools in this space (npkill, dust, dua, diskonaut, czkawka, fclones, WinDirStat, BleachBit, and the Tauri analyzer omni-search):
+
+1. Streaming scan progress over a Tauri channel, so the overview shows a live file counter and the current path instead of running to completion silently.
+2. Cancellable scans.
+3. A mark, review, then confirm deletion flow with a summary screen before anything is removed.
+4. A treemap view of the folder tree.
+5. A duplicate finder using a staged pipeline (size, then partial hash, then full hash), hardlink-aware, never deleting the last copy.
+6. MFT-direct NTFS scanning for WizTree-class speed (reads `$MFT`, needs admin), with the parallel walk kept as the fallback.
+7. More cache definitions (game clients, more editors and chat apps), moved into a declarative definitions file.
+8. Docker and WSL cache reclaim, and bundled fonts for fully offline rendering.
 
 ## License
 

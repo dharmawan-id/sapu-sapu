@@ -20,3 +20,4 @@ The first public release.
 **Notes**
 - Built on the Rust GNU toolchain, so it compiles without Visual Studio.
 - Runs without administrator rights. Needs the WebView2 runtime that ships with current Windows 10 and 11.
+- Scans run off the UI thread (async commands on a blocking pool), so the window stays responsive during a full-drive scan. The overview also collapses ancestor and descendant folders so a parent and its dominant child are not both listed.
