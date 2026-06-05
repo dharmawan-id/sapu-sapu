@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sapu Sapu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="masthead">
+    <div class="brand">
+      <span class="brand__mark">SAPU SAPU</span>
+      <span class="brand__sub">Disk Cleaner</span>
+    </div>
+    <nav class="tabs" id="tabs">
+      <button class="tab is-active" data-view="overview">Overview</button>
+      <button class="tab" data-view="clean">Clean</button>
+    </nav>
+  </header>
+
+  <section class="disks" id="disks" aria-label="Drive usage">
+    <article class="gauge" data-drive="C">
+      <div class="gauge__skeleton">Reading C:</div>
+    </article>
+    <article class="gauge" data-drive="D">
+      <div class="gauge__skeleton">Reading D:</div>
+    </article>
+  </section>
+
+  <main>
+    <!-- OVERVIEW -->
+    <section class="view" id="view-overview">
+      <div class="view__head">
+        <h2 class="view__title">Overview</h2>
+        <p class="view__lede">
+          Scan a whole drive to see the biggest folders, the biggest files and where the space
+          actually goes. Reading happens in parallel and can take up to a minute on a full drive.
+        </p>
+      </div>
+      <div class="scanbar">
+        <button class="btn btn--solid nb-press" data-scan="C">Scan C:</button>
+        <button class="btn btn--solid nb-press" data-scan="D">Scan D:</button>
+        <span class="scanbar__status" id="ov-status">Idle</span>
+      </div>
+      <div class="ov-grid" id="ov-results"></div>
+    </section>
+
+    <!-- CLEAN -->
+    <section class="view is-hidden" id="view-clean">
+      <div class="view__head">
+        <h2 class="view__title">Clean</h2>
+        <p class="view__lede">
+          Caches are previewed first. Nothing is deleted until you say so. Reclaimed space is
+          measured from the real free-space change, so hardlinked caches report honestly.
+        </p>
+      </div>
+
+      <div class="tier">
+        <div class="tier__head">
+          <span class="tier__badge tier__badge--green">Safe</span>
+          <h3 class="tier__title">Regenerating caches</h3>
+          <div class="tier__actions">
+            <button class="btn nb-press" id="green-scan">Scan sizes</button>
+            <button class="btn btn--solid nb-press" id="green-clean">Clean selected</button>
+          </div>
+        </div>
+        <div class="cards" id="green-cards"></div>
+      </div>
+
+      <div class="tier">
+        <div class="tier__head">
+          <span class="tier__badge tier__badge--yellow">Per item</span>
+          <h3 class="tier__title">Project artifacts</h3>
+          <div class="tier__actions">
+            <input class="field" id="proj-root" value="D:\Kerja" spellcheck="false" />
+            <button class="btn nb-press" id="proj-scan">Find</button>
+            <button class="btn btn--solid nb-press" id="proj-delete">Delete selected</button>
+          </div>
+        </div>
+        <p class="tier__hint">
+          Build output and dependency folders. Items touched in the last 30 days, or sitting in a
+          repo with uncommitted changes, are flagged unsafe and left unchecked.
+        </p>
+        <div class="rows" id="proj-rows"></div>
+      </div>
+
+      <div class="tier tier--locked">
+        <div class="tier__head">
+          <span class="tier__badge tier__badge--red">Protected</span>
+          <h3 class="tier__title">Never touched</h3>
+        </div>
+        <p class="tier__hint">
+          Windows Installer store, the active Claude Code sandbox, the global npm CLI prefix, browser
+          profiles, SSH and cloud keys. Sapu refuses to delete these even if asked.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

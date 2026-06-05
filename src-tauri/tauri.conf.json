@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Sapu Sapu",
+  "version": "0.1.0",
+  "identifier": "id.dharmawan.sapusapu",
+  "build": {
+    "frontendDist": "../ui"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "Sapu Sapu",
+        "width": 1180,
+        "height": 820,
+        "minWidth": 940,
+        "minHeight": 640,
+        "resizable": true,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "icon": ["icons/icon.ico"],
+    "publisher": "Dharmawan",
+    "shortDescription": "Neo-brutalist disk cleaner",
+    "longDescription": "Sapu Sapu scans C: and D:, surfaces the biggest space and developer caches, and cleans the safe ones with a preview-first, real-reclaim workflow."
+  }
+}

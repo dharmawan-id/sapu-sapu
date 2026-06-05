@@ -1,0 +1,11 @@
+# Rust / Cargo build output
+/src-tauri/target/
+**/*.rs.bk
+
+# Tauri generated schemas
+/src-tauri/gen/
+
+# OS noise
+Thumbs.db
+desktop.ini
+.DS_Store

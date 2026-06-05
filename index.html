@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sapu Sapu: an honest Windows disk cleaner</title>
+  <meta name="description" content="Sapu Sapu scans C: and D:, surfaces the biggest space and developer caches, and cleans the safe ones. Preview first, real reclaim, protected paths. Tauri and Rust, a 2.8 MB native app." />
+  <meta name="color-scheme" content="light" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+
+  <meta property="og:title" content="Sapu Sapu: an honest Windows disk cleaner" />
+  <meta property="og:description" content="Scan C: and D:, find the biggest space and dev caches, clean the safe ones. Preview first, real reclaim, protected paths." />
+  <meta property="og:type" content="website" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="masthead">
+    <div class="masthead__inner">
+      <a class="brand" href="#top" aria-label="Sapu Sapu home">
+        <span class="brand__mark" aria-hidden="true">SAPU SAPU</span>
+        <span class="brand__sub" data-i18n="brandSub">Disk Cleaner</span>
+      </a>
+      <nav class="masthead__nav" aria-label="Primary">
+        <a href="https://github.com/dharmawan-id/sapu-sapu" data-i18n="navRepo" rel="noopener">Source</a>
+        <a href="https://github.com/dharmawan-id/sapu-sapu/releases/latest" data-i18n="navDownload" rel="noopener">Download</a>
+        <div class="lang" role="group" aria-label="Language">
+          <button type="button" class="lang__btn is-active" data-lang="en" aria-pressed="true">EN</button>
+          <button type="button" class="lang__btn" data-lang="id" aria-pressed="false">ID</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <p class="hero__eyebrow" data-i18n="heroEyebrow">Windows disk cleaner</p>
+      <h1 class="hero__title">
+        <span data-i18n="heroTitleA">Clean the</span>
+        <span class="hero__mark" data-i18n="heroTitleB">tank.</span>
+      </h1>
+      <p class="hero__lede" data-i18n="heroLede">Named after the sapu-sapu, the janitor fish that keeps the tank glass clear. It scans C: and D:, shows where the space went, and cleans the safe caches. Preview first, real reclaim, nothing important touched.</p>
+      <div class="hero__meta">
+        <span>Tauri + Rust</span>
+        <span aria-hidden="true">/</span>
+        <span>2.8 MB native</span>
+        <span aria-hidden="true">/</span>
+        <span>MIT</span>
+      </div>
+      <div class="hero__cta">
+        <a class="btn btn--primary" href="https://github.com/dharmawan-id/sapu-sapu/releases/latest/download/Sapu-Sapu.exe" data-i18n="ctaDownload">Download for Windows</a>
+        <a class="btn btn--ghost" href="https://github.com/dharmawan-id/sapu-sapu" data-i18n="ctaSource" rel="noopener">View source</a>
+      </div>
+    </section>
+
+    <div class="shot">
+      <div class="shot__frame">
+        <img src="assets/screenshot.png" alt="Sapu Sapu showing C: and D: drive gauges and the overview scan" />
+      </div>
+      <p class="shot__cap" data-i18n="shotCap">The overview: drive gauges, biggest folders and files, breakdown by type.</p>
+    </div>
+
+    <section class="section">
+      <p class="section__k" data-i18n="featK">What it does</p>
+      <h2 class="section__title" data-i18n="featTitle">Two jobs, done plainly</h2>
+      <div class="features">
+        <div class="feature">
+          <span class="feature__k">Overview</span>
+          <h3 class="feature__t" data-i18n="f1t">Where the space went</h3>
+          <p class="feature__b" data-i18n="f1b">A parallel scan of a whole drive: the biggest folders, the biggest files, and a breakdown by file type, for C: and D:.</p>
+        </div>
+        <div class="feature">
+          <span class="feature__k">Real reclaim</span>
+          <h3 class="feature__t" data-i18n="f2t">Honest numbers</h3>
+          <p class="feature__b" data-i18n="f2b">Freed space is measured from the real free-space change, so a hardlinked cache reports the few gigabytes it actually frees, not an inflated total.</p>
+        </div>
+        <div class="feature">
+          <span class="feature__k">Risk tiers</span>
+          <h3 class="feature__t" data-i18n="f3t">Preview, then clean</h3>
+          <p class="feature__b" data-i18n="f3b">Nothing is deleted until you select it. Files held by a running program are skipped. Recent or uncommitted project folders are flagged unsafe.</p>
+        </div>
+        <div class="feature">
+          <span class="feature__k">Protected</span>
+          <h3 class="feature__t" data-i18n="f4t">Hands off what matters</h3>
+          <p class="feature__b" data-i18n="f4b">The Windows Installer store, browser profiles, the global npm prefix, SSH and cloud keys. The guard lives in Rust, so the interface cannot override it.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <p class="section__k" data-i18n="safeK">Safety</p>
+      <h2 class="section__title" data-i18n="safeTitle">Three tiers</h2>
+      <div class="tiers">
+        <div class="tierrow">
+          <span class="tierrow__badge tierrow__badge--green" data-i18n="tg">Green</span>
+          <div class="tierrow__body">
+            <b data-i18n="tgt">Regenerating caches</b>
+            <p data-i18n="tgb">uv, npm, pip, cargo, browser, HuggingFace, VS Code, Temp. Previewed, then cleared on confirm. They rebuild themselves.</p>
+          </div>
+        </div>
+        <div class="tierrow">
+          <span class="tierrow__badge tierrow__badge--yellow" data-i18n="ty">Yellow</span>
+          <div class="tierrow__body">
+            <b data-i18n="tyt">Project artifacts</b>
+            <p data-i18n="tyb">node_modules, target, dist, build, .next, __pycache__. Per item, and flagged unsafe if touched in the last 30 days or sitting in a repo with uncommitted changes.</p>
+          </div>
+        </div>
+        <div class="tierrow">
+          <span class="tierrow__badge tierrow__badge--red" data-i18n="tr">Protected</span>
+          <div class="tierrow__body">
+            <b data-i18n="trt">Never touched</b>
+            <p data-i18n="trb">Installer store, active sandbox, npm global prefix, browser profiles, SSH and cloud keys. Refused even if asked.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <p class="section__k" data-i18n="howK">How it works</p>
+      <h2 class="section__title" data-i18n="howTitle">Scan, preview, clean</h2>
+      <div class="steps">
+        <div class="step">
+          <span class="step__n">1</span>
+          <h3 class="step__t" data-i18n="s1t">Scan</h3>
+          <p class="step__b" data-i18n="s1b">Read a drive or list the caches. Sizes come back with file counts.</p>
+        </div>
+        <div class="step">
+          <span class="step__n">2</span>
+          <h3 class="step__t" data-i18n="s2t">Preview</h3>
+          <p class="step__b" data-i18n="s2b">See exactly what will be removed and how much it holds. Pick per item.</p>
+        </div>
+        <div class="step">
+          <span class="step__n">3</span>
+          <h3 class="step__t" data-i18n="s3t">Clean</h3>
+          <p class="step__b" data-i18n="s3b">Selected items are removed. The freed total is the real free-space change.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <section class="closer">
+    <p class="closer__note" data-i18n="closerNote">Sapu Sapu runs without admin. It needs the WebView2 runtime, which ships with current Windows 10 and 11. It is open source under the MIT License.</p>
+    <div class="closer__links">
+      <a href="https://github.com/dharmawan-id/sapu-sapu/releases/latest" data-i18n="clDownload" rel="noopener">Download</a>
+      <a href="https://github.com/dharmawan-id/sapu-sapu" data-i18n="clSource" rel="noopener">Source</a>
+      <a href="https://github.com/dharmawan-id/sapu-sapu/blob/main/README.md" data-i18n="clReadme" rel="noopener">Readme</a>
+    </div>
+  </section>
+
+  <footer class="colophon">
+    <p>
+      <span data-i18n="footAuthor">Built by Dharmawan.</span>
+      <span data-i18n="footLicense">MIT License. Neo-brutalist, timber accent.</span>
+    </p>
+  </footer>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

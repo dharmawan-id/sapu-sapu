@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Sapu Sapu"
+abstract: "An honest neo-brutalist disk cleaner for Windows. Scans C: and D: for the biggest folders, files and developer caches, and cleans the safe ones with a preview-first workflow and a real free-space-delta reclaim measure. Built with Tauri and Rust."
+type: software
+authors:
+  - family-names: Dharmawan
+    given-names: Dharmawan
+version: "0.1.0"
+date-released: "2026-06-06"
+license: MIT
+keywords:
+  - disk cleaner
+  - disk space analyzer
+  - developer caches
+  - Windows
+  - Tauri
+  - Rust
