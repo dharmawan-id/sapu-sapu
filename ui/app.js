@@ -109,14 +109,34 @@ function typeBars(items) {
     .join("");
 }
 
+let scanning = false;
+const shortPath = (p) => (p && p.length > 52 ? "..." + p.slice(-52) : p || "");
+
 async function scanOverview(drive) {
+  if (scanning) return;
+  scanning = true;
   const status = $("#ov-status");
+  const cancelBtn = $("#ov-cancel");
   const out = $("#ov-results");
-  status.textContent = `Scanning ${drive}: ...`;
+  status.textContent = `Scanning ${drive}: starting ...`;
   status.classList.add("is-busy");
+  cancelBtn.classList.remove("is-hidden");
   $$('[data-scan]').forEach((b) => (b.disabled = true));
+
+  // Live progress streams over a Tauri channel as the walk runs.
+  const ch = new window.__TAURI__.core.Channel();
+  ch.onmessage = (m) => {
+    if (m.cancelled) {
+      status.textContent = `Cancelled at ${m.files.toLocaleString()} files.`;
+    } else if (m.done) {
+      status.textContent = `${drive}: done. ${m.files.toLocaleString()} files, ${fmtBytes(m.bytes)}.`;
+    } else {
+      status.textContent = `Scanning ${drive}: ${m.files.toLocaleString()} files · ${fmtBytes(m.bytes)} · ${shortPath(m.current)}`;
+    }
+  };
+
   try {
-    const ov = await invoke("scan_overview", { drive, topn: 25 });
+    const ov = await invoke("scan_overview", { drive, topn: 25, progress: ch });
     out.innerHTML = `
       <div class="panel">
         <p class="panel__title">${drive}: biggest folders</p>
@@ -130,14 +150,26 @@ async function scanOverview(drive) {
         <p class="panel__title">${drive}: by file type</p>
         ${typeBars(ov.by_type)}
       </div>`;
-    status.textContent = `${drive}: done. ${ov.scanned_files.toLocaleString()} files read.`;
   } catch (e) {
     toast("Scan failed: " + e, "warn");
     status.textContent = "Scan failed.";
   } finally {
     status.classList.remove("is-busy");
+    cancelBtn.classList.add("is-hidden");
     $$('[data-scan]').forEach((b) => (b.disabled = false));
+    scanning = false;
   }
+}
+
+async function cancelScan() {
+  const btn = $("#ov-cancel");
+  btn.disabled = true;
+  try {
+    await invoke("cancel_scan");
+  } catch (e) {}
+  setTimeout(() => {
+    btn.disabled = false;
+  }, 500);
 }
 
 // ---------- clean: green caches ----------
@@ -297,6 +329,7 @@ async function emptyRecycle() {
 function wire() {
   wireTabs();
   $$('[data-scan]').forEach((b) => b.addEventListener("click", () => scanOverview(b.dataset.scan)));
+  $("#ov-cancel").addEventListener("click", cancelScan);
   $("#green-scan").addEventListener("click", scanGreen);
   $("#green-clean").addEventListener("click", cleanGreen);
   $("#proj-scan").addEventListener("click", scanProjects);

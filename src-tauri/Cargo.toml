@@ -1,6 +1,6 @@
 [package]
 name = "sapu"
-version = "0.1.0"
+version = "0.2.0"
 description = "Sapu Sapu - neo-brutalist disk cleaner for Windows"
 authors = ["Dharmawan"]
 edition = "2021"

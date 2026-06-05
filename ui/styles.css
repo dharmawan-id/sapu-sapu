@@ -126,6 +126,7 @@ button { font-family: inherit; cursor: pointer; }
 /* ---------- Views ---------- */
 main { position: relative; z-index: 1; padding: 0 22px 60px; }
 .view.is-hidden { display: none; }
+.is-hidden { display: none !important; }
 .view__head { border-bottom: var(--bd); padding-bottom: 14px; margin-bottom: 20px; }
 .view__title {
   font-family: var(--font-display); font-weight: 800; text-transform: uppercase;

@@ -5,7 +5,7 @@
 **A small, honest disk cleaner for Windows. Neo-brutalist on the outside, careful on the inside.**
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-0b0c0d.svg)](LICENSE)
-[![Version 0.1.0](https://img.shields.io/badge/version-0.1.0-9c6b35.svg)](CHANGELOG.md)
+[![Version 0.2.0](https://img.shields.io/badge/version-0.2.0-9c6b35.svg)](CHANGELOG.md)
 [![Platform: Windows 10+](https://img.shields.io/badge/platform-Windows%2010%2B-123047.svg)](#install)
 [![Built with: Tauri + Rust](https://img.shields.io/badge/built%20with-Tauri%20%2B%20Rust-8b2332.svg)](#tech)
 [![Languages: EN + ID](https://img.shields.io/badge/languages-EN%20%2B%20ID-c9a227.svg)](#bahasa-indonesia)
@@ -16,7 +16,7 @@ It is a single native executable of 2.8 MB, built with Tauri 2 (Rust plus the sy
 
 ## What is inside
 
-- **A disk overview** that scans a whole drive and reports the biggest folders, the biggest files, and a breakdown by file type, for both `C:` and `D:`.
+- **A disk overview** that scans a whole drive and reports the biggest folders, the biggest files, and a breakdown by file type, for both `C:` and `D:`. The scan streams a live file count and current path, and can be cancelled.
 - **A risk-tiered cleaner** that previews sizes first, then clears the caches you select.
 - **A protected-path guard**, enforced in Rust, that refuses to delete anything that matters.
 
@@ -64,16 +64,14 @@ The executable lands in `src-tauri/target/release/sapu.exe`. Regenerate the icon
 
 ## Roadmap
 
-Shaped by studying the strongest tools in this space (npkill, dust, dua, diskonaut, czkawka, fclones, WinDirStat, BleachBit, and the Tauri analyzer omni-search):
+Shaped by studying the strongest tools in this space (npkill, dust, dua, diskonaut, czkawka, fclones, WinDirStat, BleachBit, and the Tauri analyzer omni-search). Streaming scan progress and cancellable scans landed in v0.2.0. Next:
 
-1. Streaming scan progress over a Tauri channel, so the overview shows a live file counter and the current path instead of running to completion silently.
-2. Cancellable scans.
-3. A mark, review, then confirm deletion flow with a summary screen before anything is removed.
-4. A treemap view of the folder tree.
-5. A duplicate finder using a staged pipeline (size, then partial hash, then full hash), hardlink-aware, never deleting the last copy.
-6. MFT-direct NTFS scanning for WizTree-class speed (reads `$MFT`, needs admin), with the parallel walk kept as the fallback.
-7. More cache definitions (game clients, more editors and chat apps), moved into a declarative definitions file.
-8. Docker and WSL cache reclaim, and bundled fonts for fully offline rendering.
+1. A mark, review, then confirm deletion flow with a summary screen before anything is removed.
+2. A treemap view of the folder tree.
+3. A duplicate finder using a staged pipeline (size, then partial hash, then full hash), hardlink-aware, never deleting the last copy.
+4. MFT-direct NTFS scanning for WizTree-class speed (reads `$MFT`, needs admin), with the parallel walk kept as the fallback.
+5. More cache definitions (game clients, more editors and chat apps), moved into a declarative definitions file.
+6. Docker and WSL cache reclaim, and bundled fonts for fully offline rendering.
 
 ## License
 

@@ -6,9 +6,11 @@ mod cleaner;
 
 fn main() {
     tauri::Builder::default()
+        .manage(cleaner::ScanState::default())
         .invoke_handler(tauri::generate_handler![
             cleaner::disk_info,
             cleaner::scan_overview,
+            cleaner::cancel_scan,
             cleaner::list_clean_targets,
             cleaner::scan_projects,
             cleaner::clean_paths,

@@ -9,6 +9,9 @@ use std::collections::{BinaryHeap, HashMap};
 use std::cmp::Reverse;
 use std::os::windows::fs::MetadataExt;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
+use tauri::ipc::Channel;
 
 const REPARSE: u32 = 0x400; // FILE_ATTRIBUTE_REPARSE_POINT (junctions / symlinks)
 const NO_WINDOW: u32 = 0x0800_0000; // CREATE_NO_WINDOW
@@ -73,6 +76,31 @@ pub struct Overview {
     top_folders: Vec<Entry>,
     top_files: Vec<Entry>,
     by_type: Vec<TypeAgg>,
+}
+
+// Streaming progress frame, sent to the frontend over a Tauri channel.
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ScanProgress {
+    files: u64,
+    bytes: u64,
+    current: String,
+    done: bool,
+    cancelled: bool,
+}
+
+// Shared cancellation flag, stored in Tauri managed state so cancel_scan and
+// scan_overview see the same flag.
+pub struct ScanState {
+    pub cancel: Arc<AtomicBool>,
+}
+
+impl Default for ScanState {
+    fn default() -> Self {
+        ScanState {
+            cancel: Arc::new(AtomicBool::new(false)),
+        }
+    }
 }
 
 #[derive(Serialize)]
@@ -291,8 +319,15 @@ fn accumulate_folders(root: &Path, file: &Path, sz: u64, cap: usize, map: &mut H
 }
 
 #[tauri::command]
-pub async fn scan_overview(drive: String, topn: usize) -> Overview {
-    tauri::async_runtime::spawn_blocking(move || scan_overview_impl(drive, topn))
+pub async fn scan_overview(
+    drive: String,
+    topn: usize,
+    progress: Channel<ScanProgress>,
+    state: tauri::State<'_, ScanState>,
+) -> Result<Overview, String> {
+    let cancel = state.cancel.clone();
+    cancel.store(false, Ordering::SeqCst);
+    let ov = tauri::async_runtime::spawn_blocking(move || scan_overview_impl(drive, topn, progress, cancel))
         .await
         .unwrap_or_else(|_| Overview {
             drive: String::new(),
@@ -300,10 +335,22 @@ pub async fn scan_overview(drive: String, topn: usize) -> Overview {
             top_folders: Vec::new(),
             top_files: Vec::new(),
             by_type: Vec::new(),
-        })
+        });
+    Ok(ov)
 }
 
-fn scan_overview_impl(drive: String, topn: usize) -> Overview {
+// Set by cancel_scan; the scan loop checks it and bails out.
+#[tauri::command]
+pub fn cancel_scan(state: tauri::State<'_, ScanState>) {
+    state.cancel.store(true, Ordering::SeqCst);
+}
+
+fn scan_overview_impl(
+    drive: String,
+    topn: usize,
+    progress: Channel<ScanProgress>,
+    cancel: Arc<AtomicBool>,
+) -> Overview {
     let letter = drive.trim().trim_end_matches('\\').trim_end_matches(':');
     let root_str = format!("{}:\\", letter);
     let root = PathBuf::from(&root_str);
@@ -313,14 +360,21 @@ fn scan_overview_impl(drive: String, topn: usize) -> Overview {
     let mut folder: HashMap<String, u64> = HashMap::new();
     let mut by_type: HashMap<&'static str, (u64, u64)> = HashMap::new();
     let mut files = 0u64;
+    let mut total_bytes = 0u64;
+    let mut cancelled = false;
     let mut heap: BinaryHeap<Reverse<(u64, String)>> = BinaryHeap::new();
 
     for entry in jwalk::WalkDir::new(&root).skip_hidden(false).follow_links(false) {
+        if cancel.load(Ordering::Relaxed) {
+            cancelled = true;
+            break;
+        }
         if let Ok(e) = entry {
             if let Ok(md) = e.metadata() {
                 if md.is_file() && !is_reparse(&md) {
                     let sz = md.len();
                     files += 1;
+                    total_bytes += sz;
                     let p = e.path();
 
                     let ext = p
@@ -344,10 +398,28 @@ fn scan_overview_impl(drive: String, topn: usize) -> Overview {
                     }
 
                     accumulate_folders(&root, &p, sz, cap, &mut folder);
+
+                    if files % 4000 == 0 {
+                        let _ = progress.send(ScanProgress {
+                            files,
+                            bytes: total_bytes,
+                            current: p.to_string_lossy().to_string(),
+                            done: false,
+                            cancelled: false,
+                        });
+                    }
                 }
             }
         }
     }
+
+    let _ = progress.send(ScanProgress {
+        files,
+        bytes: total_bytes,
+        current: String::new(),
+        done: true,
+        cancelled,
+    });
 
     let mut all_folders: Vec<Entry> = folder
         .into_iter()

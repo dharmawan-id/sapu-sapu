@@ -2,6 +2,12 @@
 
 All notable changes to Sapu Sapu.
 
+## v0.2.0
+
+**Added**
+- **Streaming scan progress.** The drive overview streams a live file count, a running byte total, and the current path over a Tauri channel while it scans, so a full-drive scan never looks frozen.
+- **Cancellable scans.** A Cancel button stops a running scan; the engine checks a shared flag on each step and bails out, reporting the count it reached.
+
 ## v0.1.0
 
 The first public release.
